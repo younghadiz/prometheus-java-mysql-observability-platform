@@ -1,0 +1,51 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# Java
+*.class
+*.jar
+*.war
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Kubernetes / cloud credentials
+kubeconfig*
+*.kubeconfig
+.kube/
+doctl-context*
+
+# Secrets
+secrets/*.yaml
+!secrets/*.example.yaml
+*.secret
+*.secrets
+.env
+.env.*
+!.env.example
+
+# Helm temporary output
+*.tgz
+
+# Ansible
+*.retry
+ansible/.vault_pass
+ansible/vault-password*
+
+# Terraform if added later
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# SSH
+*.pem
+*.key
+id_rsa
+id_ed25519
