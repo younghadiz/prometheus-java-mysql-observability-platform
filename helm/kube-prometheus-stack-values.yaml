@@ -1,0 +1,43 @@
+grafana:
+  enabled: true
+
+prometheus:
+  enabled: true
+
+  prometheusSpec:
+    retention: 7d
+
+    serviceMonitorSelector:
+      matchLabels:
+        release: monitoring
+
+    serviceMonitorNamespaceSelector: {}
+
+    ruleSelector:
+      matchLabels:
+        release: monitoring
+
+    ruleNamespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: monitoring
+
+alertmanager:
+  enabled: true
+
+  alertmanagerSpec:
+    alertmanagerConfigSelector:
+      matchLabels:
+        alertmanagerConfig: main
+
+    alertmanagerConfigNamespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: monitoring
+
+prometheusOperator:
+  enabled: true
+
+kubeStateMetrics:
+  enabled: true
+
+nodeExporter:
+  enabled: true
