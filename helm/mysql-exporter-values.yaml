@@ -1,0 +1,29 @@
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  labels:
+    app: mysql-exporter
+
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  additionalLabels:
+    release: monitoring
+
+mysql:
+  host: java-mysql-db-primary
+  port: 3306
+  user: appuser
+
+  existingPasswordSecret:
+    name: java-mysql-db-credentials
+    key: mysql-password
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
