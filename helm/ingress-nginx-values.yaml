@@ -1,0 +1,30 @@
+controller:
+  replicaCount: 2
+
+  service:
+    type: LoadBalancer
+
+  metrics:
+    enabled: true
+
+    service:
+      enabled: true
+      annotations: {}
+
+    serviceMonitor:
+      enabled: false
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  config:
+    use-forwarded-headers: "true"
+
+  admissionWebhooks:
+    enabled: true
