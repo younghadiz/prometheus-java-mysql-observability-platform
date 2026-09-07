@@ -1,0 +1,106 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: application-platform-alerts
+  namespace: monitoring
+  labels:
+    app: kube-prometheus-stack
+    release: monitoring
+
+spec:
+  groups:
+
+    - name: ingress.rules
+      rules:
+
+        - alert: HighPercent4xxRequests
+          expr: |
+            (
+              sum(rate(nginx_ingress_controller_requests{status=~"4.."}[5m]))
+              /
+              clamp_min(
+                sum(rate(nginx_ingress_controller_requests[5m])),
+                0.001
+              )
+            ) * 100 > 5
+          for: 2m
+          labels:
+            severity: warning
+            team: kubernetes
+            component: ingress
+          annotations:
+            summary: "NGINX Ingress 4xx rate is above 5%"
+            description: "More than 5% of ingress HTTP requests are returning 4xx responses."
+
+    - name: mysql.rules
+      rules:
+
+        - alert: AllDBPodsDown
+          expr: |
+            sum(mysql_up) == 0
+          for: 1m
+          labels:
+            severity: critical
+            team: developers
+            component: mysql
+          annotations:
+            summary: "All monitored MySQL instances are unavailable"
+            description: "Prometheus cannot successfully reach any monitored MySQL instance."
+
+        - alert: TooManyDBConnections
+          expr: |
+            count(
+              mysql_global_status_threads_connected
+              >
+              mysql_global_variables_max_connections * 0.90
+            ) > 0
+          for: 2m
+          labels:
+            severity: warning
+            team: developers
+            component: mysql
+          annotations:
+            summary: "MySQL connection usage is above 90%"
+            description: "At least one monitored MySQL instance is using more than 90% of its configured maximum connections."
+
+    - name: java.rules
+      rules:
+
+        - alert: TooManyIncomingRequests
+          expr: |
+            sum(rate(java_app_http_requests_total[5m])) > 90
+          for: 2m
+          labels:
+            severity: warning
+            team: developers
+            component: java
+          annotations:
+            summary: "Java application request rate is unusually high"
+            description: "The Java application is receiving more than 90 requests per second averaged over the last 5 minutes."
+
+    - name: kubernetes.rules
+      rules:
+
+        - alert: MySQLStatefulSetReplicasMismatch
+          expr: |
+            sum(
+              kube_statefulset_status_replicas_ready{
+                namespace="default",
+                statefulset=~"java-mysql-db-(primary|secondary)"
+              }
+            )
+            <
+            sum(
+              kube_statefulset_replicas{
+                namespace="default",
+                statefulset=~"java-mysql-db-(primary|secondary)"
+              }
+            )
+          for: 2m
+          labels:
+            severity: critical
+            team: kubernetes
+            component: kubernetes
+          annotations:
+            summary: "MySQL StatefulSet replicas mismatch"
+            description: "The number of ready MySQL StatefulSet replicas is lower than the desired number."
